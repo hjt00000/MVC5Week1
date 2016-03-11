@@ -12,10 +12,14 @@ namespace MVC5Week1.Controllers
     {
         private 客戶資料Entities db = new 客戶資料Entities();
         // GET: Customer
-        public ActionResult Index()
+        public ActionResult Index(string QueryName)
         {
-            var data = db.客戶資料.Where(p => p.是否已刪除 == false);
-
+            var data = db.客戶資料.Where(p => p.是否已刪除 == false).AsQueryable();
+            if(!string.IsNullOrEmpty(QueryName))
+            {
+                ViewBag.QueryName = QueryName;
+                data = data.Where(p => p.客戶名稱.Contains(QueryName));
+            }
             return View(data);
         }
 
@@ -67,9 +71,22 @@ namespace MVC5Week1.Controllers
         {
             var data = db.客戶資料.Find(id);
             data.是否已刪除 = true;
-            db.Entry(data).State = EntityState.Modified;
+            //db.Entry(data).State = EntityState.Modified;
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+
+        public ActionResult Full(string QueryName)
+        {
+
+            var data = db.vw客戶完整資料.AsQueryable();
+            if(!string.IsNullOrEmpty(QueryName))
+            {
+                ViewBag.QueryName = QueryName;
+                data = data.Where(p => p.客戶名稱.Contains(QueryName));
+            }
+            return View(data.ToList());
         }
     }
 }
