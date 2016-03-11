@@ -123,7 +123,7 @@ namespace MVC5Week1.Controllers
 
         public ActionResult CheckEmail(客戶聯絡人 data)
         {
-            var checkdata = db.客戶聯絡人.Where(p => p.Email == data.Email && p.客戶Id == data.客戶Id).FirstOrDefault();
+            var checkdata = db.客戶聯絡人.Where(p => p.Email == data.Email && p.客戶Id == data.客戶Id && p.Id != data.Id).FirstOrDefault();
             if (checkdata == null)
             {
                 return Json(true, JsonRequestBehavior.AllowGet);
