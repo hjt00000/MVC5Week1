@@ -7,6 +7,8 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MVC5Week1.Models;
+using PagedList;
+using PagedList.Mvc;
 
 namespace MVC5Week1.Controllers
 {
@@ -16,12 +18,13 @@ namespace MVC5Week1.Controllers
         //private 客戶資料Entities db = new 客戶資料Entities();
 
         // GET: 客戶聯絡人
-        public ActionResult Index(string QueryName)
+        public ActionResult Index(string QueryName,int? page)
         {
             //var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料).Where(p => p.是否已刪除 == false);
             var 客戶聯絡人 = repo.All(QueryName);
+            var pageNumber = page ?? 1;
             ViewBag.QueryName = QueryName;
-            return View(客戶聯絡人.ToList());
+            return View(客戶聯絡人.ToPagedList(pageNumber,2));
         }
 
         // GET: 客戶聯絡人/Details/5

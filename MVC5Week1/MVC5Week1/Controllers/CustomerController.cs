@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using MVC5Week1.Models;
 using System.Data.Entity;
+using PagedList;
+using PagedList.Mvc;
 
 namespace MVC5Week1.Controllers
 {
@@ -13,13 +15,15 @@ namespace MVC5Week1.Controllers
         客戶資料Repository repo = RepositoryHelper.Get客戶資料Repository();
         //private 客戶資料Entities db = new 客戶資料Entities();
         // GET: Customer
-        public ActionResult Index(string QueryName,string type)
+        public ActionResult Index(string QueryName,string type,int? page)
         {
             //var data = db.客戶資料.Where(p => p.是否已刪除 == false).AsQueryable();
             var data = repo.All(QueryName, type);
             ViewBag.客戶分類 = new SelectList(repo.Get客戶分類(),type);
-           
-            return View(data);
+            ViewBag.type = type;
+            ViewBag.QueryName = QueryName;
+            var pagenumber = page ?? 1;
+            return View(data.ToPagedList(pagenumber,2));
         }
 
         public ActionResult Create()

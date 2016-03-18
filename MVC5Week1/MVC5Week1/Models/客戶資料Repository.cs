@@ -8,7 +8,7 @@ namespace MVC5Week1.Models
 	{
         public override IQueryable<客戶資料> All()
         {
-            return base.All().Where(p => !p.是否已刪除);
+            return base.All().Where(p => !p.是否已刪除).OrderBy(p => p.Id);
         }
 
         public IQueryable<客戶資料> All(string queryname,string type)
@@ -32,7 +32,7 @@ namespace MVC5Week1.Models
 
         public IQueryable<string> Get客戶分類()
         {
-            var data = this.All().Where(p => !p.是否已刪除).Select(b => b.客戶分類);
+            var data = this.All().Where(p => !p.是否已刪除).Select(b => b.客戶分類).Distinct();
             return data;
         }
     }

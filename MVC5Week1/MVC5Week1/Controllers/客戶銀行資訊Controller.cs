@@ -7,6 +7,8 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using MVC5Week1.Models;
+using PagedList;
+using PagedList.Mvc;
 
 namespace MVC5Week1.Controllers
 {
@@ -16,15 +18,12 @@ namespace MVC5Week1.Controllers
         客戶銀行資訊Repository repo = RepositoryHelper.Get客戶銀行資訊Repository();
 
         // GET: 客戶銀行資訊
-        public ActionResult Index(string QueryName)
+        public ActionResult Index(string QueryName,int? page)
         {
-            var 客戶銀行資訊 = repo.All().AsQueryable();
-            if (!string.IsNullOrEmpty(QueryName))
-            {
-                ViewBag.QueryName = QueryName;
-                客戶銀行資訊 = 客戶銀行資訊.Where(p => p.銀行名稱.Contains(QueryName));
-            }
-            return View(客戶銀行資訊.ToList());
+            var 客戶銀行資訊 = repo.All(QueryName);
+            var pagenumber = page ?? 1;
+            ViewBag.QueryName = QueryName;
+            return View(客戶銀行資訊.ToPagedList(pagenumber,2));
         }
 
         // GET: 客戶銀行資訊/Details/5

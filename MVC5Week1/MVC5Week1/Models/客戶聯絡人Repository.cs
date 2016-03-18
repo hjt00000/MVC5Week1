@@ -8,7 +8,7 @@ namespace MVC5Week1.Models
 	{
         public override IQueryable<客戶聯絡人> All()
         {
-            return base.All().Include("客戶資料").Where(p => !p.是否已刪除);
+            return base.All().Include("客戶資料").Where(p => !p.是否已刪除).OrderBy(p => p.Id);
         }
 
         public IQueryable<客戶聯絡人> All(string queryname)

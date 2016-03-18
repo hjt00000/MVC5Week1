@@ -1,7 +1,10 @@
-﻿@model IEnumerable<MVC5Week1.Models.客戶銀行資訊>
+﻿@using PagedList;
+@using PagedList.Mvc;
+@model IEnumerable<MVC5Week1.Models.客戶銀行資訊>
 
 @{
     ViewBag.Title = "Index";
+    var data = Model as IPagedList<MVC5Week1.Models.客戶銀行資訊>;
 }
 <h2>@ViewBag.Title</h2>
 @using (Html.BeginForm())
@@ -70,3 +73,4 @@
 }
 
 </table>
+@Html.PagedListPager(list: data, generatePageUrl: page => Url.Action("Index", new { QueryName = ViewBag.QueryName, page = page }))
