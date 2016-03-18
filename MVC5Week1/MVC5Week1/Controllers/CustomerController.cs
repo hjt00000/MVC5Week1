@@ -10,16 +10,15 @@ namespace MVC5Week1.Controllers
 {
     public class CustomerController : Controller
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
+        客戶資料Repository repo = RepositoryHelper.Get客戶資料Repository();
+        //private 客戶資料Entities db = new 客戶資料Entities();
         // GET: Customer
-        public ActionResult Index(string QueryName)
+        public ActionResult Index(string QueryName,string type)
         {
-            var data = db.客戶資料.Where(p => p.是否已刪除 == false).AsQueryable();
-            if(!string.IsNullOrEmpty(QueryName))
-            {
-                ViewBag.QueryName = QueryName;
-                data = data.Where(p => p.客戶名稱.Contains(QueryName));
-            }
+            //var data = db.客戶資料.Where(p => p.是否已刪除 == false).AsQueryable();
+            var data = repo.All(QueryName, type);
+            ViewBag.客戶分類 = new SelectList(repo.Get客戶分類(),type);
+           
             return View(data);
         }
 
@@ -33,21 +32,23 @@ namespace MVC5Week1.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.客戶資料.Add(CustomerData);
-                db.SaveChanges();
+                repo.Add(CustomerData);
+                repo.UnitOfWork.Commit();
+                //db.SaveChanges();
             }
-            return RedirectToAction("客戶資料");
+            return RedirectToAction("Index");
         }
 
         public ActionResult Details(int Id)
         {
-            var data = db.客戶資料.FirstOrDefault(p => p.Id == Id);
+            //var data = db.客戶資料.FirstOrDefault(p => p.Id == Id);
+            var data = repo.Find(Id);
             return View(data);
         }
 
         public ActionResult Edit(int Id)
         {
-            var data = db.客戶資料.Find(Id);
+            var data = repo.Find(Id);
             if(data == null)
             {
                 return HttpNotFound();
@@ -60,6 +61,7 @@ namespace MVC5Week1.Controllers
         {
             if (ModelState.IsValid)
             {
+                var db = (客戶資料Entities)repo.UnitOfWork.Context;
                 db.Entry(CustomerData).State = EntityState.Modified;
                 db.SaveChanges();
                 
@@ -69,18 +71,18 @@ namespace MVC5Week1.Controllers
 
         public ActionResult Delete(int id)
         {
-            var data = db.客戶資料.Find(id);
+            客戶資料 data = repo.Find(id);
             data.是否已刪除 = true;
             //db.Entry(data).State = EntityState.Modified;
-            db.SaveChanges();
+            repo.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
 
         public ActionResult Full(string QueryName)
         {
-
-            var data = db.vw客戶完整資料.AsQueryable();
+            vw客戶完整資料Repository repovw = RepositoryHelper.Getvw客戶完整資料Repository();
+            var data = repovw.All().AsQueryable();
             if(!string.IsNullOrEmpty(QueryName))
             {
                 ViewBag.QueryName = QueryName;

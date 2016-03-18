@@ -4,11 +4,29 @@ namespace MVC5Week1.Models
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Web.Mvc;
+    using System.Linq;
     [MetadataType(typeof(客戶聯絡人MetaData))]
-    public partial class 客戶聯絡人
+    public partial class 客戶聯絡人 : IValidatableObject
     {
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var db = new 客戶資料Entities();
+            if(this.Id == 0)
+            {
+                if(db.客戶聯絡人.Where(p => p.Email == this.Email && p.客戶Id == this.客戶Id).Any())
+                {
+                    yield return new ValidationResult("Email 已存在", new[] { "Email" });
+                }
+            } else {
+                if(db.客戶聯絡人.Where(p => p.Email == this.Email && p.客戶Id == this.客戶Id && p.Id != this.Id).Any())
+                {
+                    yield return new ValidationResult("Email 已存在", new[] { "Email" });
+                }
+            }
+            yield return ValidationResult.Success;
+        }
     }
-    
+
     public partial class 客戶聯絡人MetaData
     {
         [Required]
@@ -27,7 +45,7 @@ namespace MVC5Week1.Models
         [StringLength(250, ErrorMessage="欄位長度不得大於 250 個字元")]
         [Required]
         [EmailAddress]
-        [Remote("CheckEmail", "客戶聯絡人",AdditionalFields = "Id,客戶Id")]
+        //[Remote("CheckEmail", "客戶聯絡人",AdditionalFields = "Id,客戶Id")]
         public string Email { get; set; }
         
         [StringLength(50, ErrorMessage="欄位長度不得大於 50 個字元")]

@@ -12,12 +12,15 @@ namespace MVC5Week1.Controllers
 {
     public class 客戶聯絡人Controller : Controller
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
+        客戶聯絡人Repository repo = RepositoryHelper.Get客戶聯絡人Repository();
+        //private 客戶資料Entities db = new 客戶資料Entities();
 
         // GET: 客戶聯絡人
-        public ActionResult Index()
+        public ActionResult Index(string QueryName)
         {
-            var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料).Where(p => p.是否已刪除 == false);
+            //var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料).Where(p => p.是否已刪除 == false);
+            var 客戶聯絡人 = repo.All(QueryName);
+            ViewBag.QueryName = QueryName;
             return View(客戶聯絡人.ToList());
         }
 
@@ -28,7 +31,7 @@ namespace MVC5Week1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -39,7 +42,8 @@ namespace MVC5Week1.Controllers
         // GET: 客戶聯絡人/Create
         public ActionResult Create()
         {
-            ViewBag.客戶Id = new SelectList(db.客戶資料.Where(p => p.是否已刪除 == false), "Id", "客戶名稱");
+            var repoC = RepositoryHelper.Get客戶資料Repository(repo.UnitOfWork);
+            ViewBag.客戶Id = new SelectList(repoC.All().AsEnumerable<客戶資料>(), "Id", "客戶名稱");
             return View();
         }
 
@@ -52,12 +56,15 @@ namespace MVC5Week1.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.客戶聯絡人.Add(客戶聯絡人);
-                db.SaveChanges();
+                repo.Add(客戶聯絡人);
+                repo.UnitOfWork.Commit();
+                //db.客戶聯絡人.Add(客戶聯絡人);
+                //db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
-            ViewBag.客戶Id = new SelectList(db.客戶資料.Where(p => p.是否已刪除 == false), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+            var repoC = RepositoryHelper.Get客戶資料Repository(repo.UnitOfWork);
+            ViewBag.客戶Id = new SelectList(repoC.All().AsEnumerable<客戶資料>(), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+            //ViewBag.客戶Id = new SelectList(db.客戶資料.Where(p => p.是否已刪除 == false), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -68,12 +75,13 @@ namespace MVC5Week1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.客戶Id = new SelectList(db.客戶資料.Where(p => p.是否已刪除 == false), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+            var repoC = RepositoryHelper.Get客戶資料Repository(repo.UnitOfWork);
+            ViewBag.客戶Id = new SelectList(repoC.All().AsEnumerable<客戶資料>(), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -86,11 +94,13 @@ namespace MVC5Week1.Controllers
         {
             if (ModelState.IsValid)
             {
+                var db = (客戶資料Entities)repo.UnitOfWork.Context;
                 db.Entry(客戶聯絡人).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.客戶Id = new SelectList(db.客戶資料.Where(p => p.是否已刪除 == false), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+            var repoC = RepositoryHelper.Get客戶資料Repository(repo.UnitOfWork);
+            ViewBag.客戶Id = new SelectList(repoC.All().AsEnumerable<客戶資料>(), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -101,7 +111,7 @@ namespace MVC5Week1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo.Find(id.Value);
             if (客戶聯絡人 == null)
             {
                 return HttpNotFound();
@@ -114,32 +124,11 @@ namespace MVC5Week1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
+            客戶聯絡人 客戶聯絡人 = repo.Find(id);
             //db.客戶聯絡人.Remove(客戶聯絡人);
             客戶聯絡人.是否已刪除 = true;
-            db.SaveChanges();
+            repo.UnitOfWork.Commit();
             return RedirectToAction("Index");
-        }
-
-        public ActionResult CheckEmail(客戶聯絡人 data)
-        {
-            var checkdata = db.客戶聯絡人.Where(p => p.Email == data.Email && p.客戶Id == data.客戶Id && p.Id != data.Id).FirstOrDefault();
-            if (checkdata == null)
-            {
-                return Json(true, JsonRequestBehavior.AllowGet);
-            } else
-            {
-                return Json("Email 重複", JsonRequestBehavior.AllowGet);
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }
