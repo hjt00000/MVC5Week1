@@ -15,7 +15,7 @@
     </div>
     <div class="form-group">
         <label>客戶分類：</label>
-        @Html.DropDownList("type",(IEnumerable<SelectListItem>)ViewBag.客戶分類, "請選擇", htmlAttributes: new { @class = "form-control" })
+        @Html.DropDownList("type",null, "請選擇", htmlAttributes: new { @class = "form-control" })
     </div>
     <div class="form-group">
         <input type="submit" value="搜尋" class="btn btn-default" />
@@ -81,4 +81,4 @@
 }
 
 </table>
-@Html.PagedListPager(list: data, generatePageUrl: page => Url.Action("Index", new { QueryName = ViewBag.QueryName, type = ViewBag.type, page = page }))
+@Html.PagedListPager(list: data, generatePageUrl: page => Url.Action("Index", new { QueryName = ViewBag.QueryName, page = page }))

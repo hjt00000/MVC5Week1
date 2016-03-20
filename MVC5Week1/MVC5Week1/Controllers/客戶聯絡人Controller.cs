@@ -133,5 +133,30 @@ namespace MVC5Week1.Controllers
             repo.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
+
+        public ActionResult List(int CustomerId)
+        {
+            var data = repo.All().Where(p => p.客戶Id == CustomerId);
+            ViewData["CustomerId"] = CustomerId;
+            return View(data.ToList());
+        }
+
+        [HttpPost]
+        public ActionResult List(IList<BatchContact> Customers,int CustomerId)
+        {
+            if (ModelState.IsValid)
+            {
+                foreach (var item in Customers)
+                {
+                    var tmp = repo.Find(item.Id);
+                    tmp.手機 = item.手機;
+                    tmp.職稱 = item.職稱;
+                    tmp.電話 = item.電話;
+                }
+                repo.UnitOfWork.Commit();
+                
+            }
+            return RedirectToAction("Details","Customer",new {id = CustomerId });
+        }
     }
 }
